@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 9</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 9 with TrackJS</title>
 
   <style>
     button {
@@ -87,22 +87,135 @@
     </section>
   </main>
 
-  <script>
-    let form = document.querySelector('form');
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      let output = document.querySelector('output');
-      let firstNum = document.querySelector('#first-num').value;
-      let secondNum = document.querySelector('#second-num').value;
-      let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
-    });
+<!-- TrackJS config: must be defined before loading the TrackJS script -->
+<script>
+  window._trackJs = {
+    token: "6f36b595d10e4d6593b858fab84e8829",
+    application: "lab9-example"
+  };
+</script>
 
-    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+<!-- Load TrackJS -->
+<script src="https://cdn.trackjs.com/releases/current/tracker.js"></script>
 
-    // Start your code here
-    // You may move this JS to another file if you wish
-  </script>
+<!-- Your custom script code -->
+<script>
+  class ValidationError extends Error {
+    constructor(message) {
+      super(message);
+      this.name = "InputValidationError";
+    }
+  }
+
+  let form = document.querySelector('form');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    let output = document.querySelector('output');
+    let firstNum = document.querySelector('#first-num').value;
+    let secondNum = document.querySelector('#second-num').value;
+    let operator = document.querySelector('#operator').value;
+
+    // Input Validation
+    if (!firstNum || !secondNum) {
+      throw new ValidationError("Inputs must not be empty");
+    }
+    if (operator === '/' && parseFloat(secondNum) === 0) {
+      throw new ValidationError("Division by zero is not allowed.");
+    }
+
+    let expression = `${firstNum} ${operator} ${secondNum}`;
+
+    console.log("Calculating expression: ", expression);
+    try {
+      // This will throw a SyntaxError if input is bad like "2a + 2"
+      let result = eval(expression);
+      output.innerHTML = result;
+    } catch (err) {
+      // Allow the error to be uncaught for TrackJS to capture it
+      console.error("Caught error during eval:", err.message);
+      throw err;
+    }
+  });
+
+  let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+
+  errorBtns[0].addEventListener('click', () => {
+    console.log("Logging in console");
+  });
+
+  errorBtns[1].addEventListener('click', () => {
+    console.error("Error in console");
+  });
+
+  errorBtns[2].addEventListener('click', () => {
+    console.count("Count button clicked");
+  });
+
+  errorBtns[3].addEventListener('click', () => {
+    console.warn("Warning for the user");
+  });
+
+  errorBtns[4].addEventListener('click', () => {
+    console.assert(2 + 2 === 5, "Assertion failed");
+  });
+
+  errorBtns[5].addEventListener('click', () => {
+    console.clear();
+  });
+
+  errorBtns[6].addEventListener('click', () => {
+    const errorSection = document.querySelector("#error-btns");
+    console.dir(errorSection);
+  });
+
+  errorBtns[7].addEventListener('click', () => {
+    let errorSection = document.querySelector("#error-btns");
+    console.dirxml(errorSection);
+  });
+
+  errorBtns[8].addEventListener('click', () => {
+    console.group("Group started");
+    console.log("Message 1");
+    console.log("Message 2");
+  });
+
+  errorBtns[9].addEventListener('click', () => {
+    console.groupEnd("Group ended");
+  });
+
+  errorBtns[10].addEventListener('click', () => {
+    const data = [
+      { PID: "A18554038", name: "Taha Qamar" },
+      { PID: "A18554039", name: "Taha's Clone" }
+    ];
+    console.table(data);
+  });
+
+  errorBtns[11].addEventListener('click', () => {
+    console.time("Timer");
+  });
+
+  errorBtns[12].addEventListener('click', () => {
+    console.timeEnd("Timer");
+  });
+
+  errorBtns[13].addEventListener('click', () => {
+    function foo() {
+      console.trace();
+    }
+    foo();
+  });
+
+  errorBtns[14].addEventListener('click', () => {
+    nonExistentFunction();  // This will trigger a global error TrackJS will catch
+  });
+
+  window.onerror = function (message, source, lineno, colno, error) {
+    console.log("Global error caught:", message);
+  };
+</script>
+
+  
 </body>
 
 </html>
